@@ -1,0 +1,394 @@
+
+ADDI $s1, $s0, 1 #ultimu
+ADDI $s2, $s0, -1 #penultimu
+
+ADDI $s3, $s0, 0 #a
+ADDI $s4, $s0, 30 #b
+
+ADDI $s5, $s0, 0 #suma
+
+ADDI $s7, $s0, 1 #pt verificare
+
+loop:
+	
+    ADDI $s6, $s0, 0 #verificare interval
+    SLT $s6, $s4, $s1 # daca a iesit din interval
+    BEQ $s6, $s7, end # sare la end
+
+	ADDI $s6, $s0, 0 #verificare interval
+    SLT $s6, $s3, $s1 # daca a intrat in interval
+    BEQ $s6, $s7, add_to_sum
+    
+    add $s1,$s1,$s2 #ultimu
+	sub $s2,$s1,$s2 #penultimu
+	j loop
+    
+    
+add_to_sum:
+	
+    add $s1,$s1,$s2 #ultimu
+	sub $s2,$s1,$s2 #penultimu
+    add $s5,$s5,$s2 #suma
+	j loop
+    
+    
+end:
+
+
+//////////////////////////////////////////////////////////////////////
+
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+int main()
+{
+	int ok = 1;
+	int n = 36;
+		
+	for (int i = 2; i < n; i++)
+	{
+		for (int j = i; j <= n; j = j + i)
+			if (j == n)
+				ok = 0;
+	}
+	
+	if (ok == 1)
+		printf(" e prim\n");
+	else printf("nu e prim\n");
+  
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+
+
+
+
+ADDI $s1, $s0, 1 #ultimul
+ADDI $s2, $s0, -1 #penultimul
+
+ADDI $s3, $s0, 232 #a
+ADDI $s4, $s0, 234 #b
+
+ADDI $s5, $s0, 0 #suma
+
+ADDI $s7, $s0, 1 #pt verificare
+
+loop:
+	
+    ADDI $s6, $s0, 0 #verificare interval
+    SLT $s6, $s4, $s1 # daca a iesit din interval
+    BEQ $s6, $s7, verif_prim # sare la verif_prim
+
+	ADDI $s6, $s0, 0 #verificare interval
+    SLT $s6, $s3, $s1 # daca a intrat in interval
+    BEQ $s6, $s7, add_to_sum
+    
+    ADD $s1, $s1, $s2 #ultimu
+	SUB $s2, $s1, $s2 #penultimu
+	J loop
+    
+    
+add_to_sum:
+	
+    ADD $s1, $s1, $s2 #ultimu
+	SUB $s2, $s1, $s2 #penultimu
+    ADD $s5, $s5, $s2 #suma
+	J loop
+    
+    
+verif_prim:
+	
+    ADDI $s1, $s0, 1 #counter
+    ADDI $s2, $s0, 0 #j
+    ADDI $s4, $s0, 0 #rez
+    ADDI $s7, $s0, 1 #verif
+    
+    BEQ $s5, $s1, nu_e_prim
+    
+loop2:
+
+	ADDI $s1, $s1, 1
+    BEQ $s1, $s5, end # for i,n
+    ADD $s2, $s0, $s1 # for j=i,n,j=j+i
+ 
+	
+    loop3:
+ 	
+    	BEQ $s2, $s5, nu_e_prim
+    	ADD $s2, $s2, $s1 # j = j + i
+        
+        ADDI $s6, $s0, 0 #verificare interval
+        SLT $s6, $s5, $s2
+        BEQ $s6, $s7, loop2
+        
+    	J loop3
+    
+      
+nu_e_prim:
+	ADDI $s4, $s0, 0 # NOT_PRIME
+    J FINAL
+    
+end:
+	ADDI $s4, $s0, 1 # IS_PRIME
+
+FINAL:
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+signal ROM: rom_type:=( B"001_000_001_0000001", --0 addi $s1,$s0,1 2081
+                        B"001_000_010_1111111", --1 addi $s2,$s0,-1 217F
+                        B"001_000_011_0000000", --2 addi $s3,$s0,a
+                        B"001_000_100_0000000", --3 addi $s4,$s0,b
+                        B"001_000_101_0000000", --4 addi $s5,$s0,0 2280
+                        B"001_000_111_0000001", --5 addi $s7,$s0,1 2381
+                        B"001_000_110_0000000", --6 addi $s6,$s0,0 2300
+                        B"000_100_001_110_0_111", --7 slt $s6,$s4,$s1 10E7
+                        B"100_110_111_0010011", --8 beq $s6,$s7,verif_prim=19 4DC9
+                        B"001_000_110_0000000", --9 addi $s6,$s0,0 2300
+                        B"000_011_001_110_0_111", --10 slt $s6,$s3,$s1 0CE7
+                        B"100_110_111_0001111", --11 beq $s6,$s7,add_to_sum=15 9B8F
+                        B"000_001_010_001_0_000", --12 add $s1,$s1,$s2 0510
+                        B"000_001_010_010_0_001", --13 sub $s2,$s1,$s2 0521
+                        B"111_0000000000110", -- 14 j loop=6 E006
+                        B"000_001_010_001_0_000", --15 add $s1,$s1,$s2 0510 
+                        B"000_001_010_010_0_001", --16 sub $s2,$s1,$s2 0521
+                        B"000_101_001_101_0_000", --17 add $s5,$s5,$s2 14D0
+                        B"111_0000000000110", --18 j loop=6 E006
+                        B"001_000_001_0000001", --19 addi $s1,$s0,1 2081
+                        B"001_000_010_0000000", --20 addi $s2,$s0,0 2100
+                        B"001_000_100_0000000", --21 addi $s4,$s0,0 2200
+                        B"001_000_111_0000001", --22 addi $s7,$s0,1 2381
+                        B"100_101_001_0100001", --23 beq $s5,$s1,nu_e_prim=33 94A1
+                        B"001_001_001_0000001", --24 addi $s1,$s1,1 2481
+                        B"100_001_101_0100011", --25 beq $s1,$s5,end=35 86A3
+                        B"000_000_001_010_0_000", --26 add$s2,$s0,$s1 00A0
+                        B"100_010_101_0100001", --27 beq $s2,$s5,nu_e_prim==33 8AA1
+                        B"000_010_001_010_0_000", --28 add $s2,$s2,$s1 08A0
+                        B"001_000_110_0000000", --29 addi $s6,$s0,0 2300
+                        B"000_101_010_110_0_111", --30 slt $s6,$s5,$s2 1567
+                        B"100_110_111_0011000", --31 beq $s6,$s7,loop2=24 9B98
+                        B"111_0000000011011", --32 j loop3=27 E01B
+                        B"001_000_100_0000000", --33 addi $s4,$s0,0 2200
+                        B"111_0000000100100", --34 j FINAL=36 E024
+                        B"001_000_100_0000001", --35 addi$s4,$s0,1 2201
+                        others =>"0000000000000000");
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+ADDI $s1, $s0, 1 #ultimul
+ADDI $s2, $s0, 0 #penultimul
+
+ADDI $s3, $s0, 10 #a
+ADDI $s4, $s0, 15 #b
+
+ADDI $s5, $s0, 0 #suma
+
+ADDI $s7, $s0, 1 #pt verificare
+
+loop:
+
+    ADDI $s6, $s0, 0 #verificare interval
+    SLT $s6, $s4, $s1 # daca a iesit din interval
+    BEQ $s6, $s7, verif_prim # sare la verif_prim
+
+    ADDI $s6, $s0, 0 #verificare interval
+    SLT $s6, $s3, $s1 # daca a intrat in interval
+    BEQ $s6, $s7, add_to_sum
+
+    ADD $s1, $s1, $s2 #ultimu
+    SUB $s2, $s1, $s2 #penultimu
+    J loop
+
+
+add_to_sum:
+
+    ADD $s1, $s1, $s2 #ultimu
+    SUB $s2, $s1, $s2 #penultimu
+    ADD $s5, $s5, $s2 #suma
+    J loop
+
+
+verif_prim:
+
+    ADDI $s1, $s0, 1 #counter
+    ADDI $s2, $s0, 0 #j
+    ADDI $s4, $s0, 0 #rez
+    ADDI $s7, $s0, 1 #verif
+
+    BEQ $s5, $s1, nu_e_prim
+
+loop2:
+
+    ADDI $s1, $s1, 1
+    BEQ $s1, $s5, end # for i,n
+    ADD $s2, $s0, $s1 # for j=i,n,j=j+i
+ 
+
+    loop3:
+
+        BEQ $s2, $s5, nu_e_prim
+        ADD $s2, $s2, $s1 # j = j + i
+
+        ADDI $s6, $s0, 0 #verificare interval
+        SLT $s6, $s5, $s2
+        BEQ $s6, $s0, aici
+        
+		J loop2
+        
+aici:   J loop3
+		
+
+nu_e_prim:
+    ADDI $s4, $s0, 0 # NOT_PRIME
+    J FINAL
+
+end:
+    ADDI $s4, $s0, 1 # IS_PRIME
+    
+FINAL: sw $s5,10($s0)
+	sw $s4,11($s0)
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+0 ADDI $s1, $s0, 1 
+1 ADDI $s2, $s0, 0 
+2 ADDI $s3, $s0, 6 
+3 ADDI $s4, $s0, 30 
+4 ADDI $s5, $s0, 0 
+5 ADDI $s7, $s0, 1 
+6 loop: ADDI $s6, $s0, 0 #verificare interval
+7 SLT $s6, $s4, $s1 # daca a iesit din interval
+8 ADD $s0,$s0,$s0 ---
+9 ADD $s0,$s0,$s0 ---
+10 ADD $s0,$s0,$s0 ---
+11 BEQ $s6, $s7, 42# sare la verif_prim
+12 ADD $s0,$s0,$s0 ---
+13 ADD $s0,$s0,$s0 ---
+14 ADD $s0,$s0,$s0 ---
+15 ADDI $s6, $s0, 0 #verificare interval
+16 SLT $s6, $s3, $s1 # daca a intrat in interval
+17 ADD $s0,$s0,$s0 ---
+18 ADD $s0,$s0,$s0 ---
+19 ADD $s0,$s0,$s0 ---
+20 BEQ $s6, $s7, 34
+21 ADD $s0,$s0,$s0 ---
+22 ADD $s0,$s0,$s0 ---
+23 ADD $s0,$s0,$s0 ---
+24 ADD $s1, $s1, $s2 #ultimul
+25 ADD $s0,$s0,$s0 ---
+26 ADD $s0,$s0,$s0 ---
+27 ADD $s0,$s0,$s0 ---
+29 SUB $s2, $s1, $s2 #penultimul
+30 ADD $s0,$s0,$s0 ---
+31 ADD $s0,$s0,$s0 ---
+32 J 6
+33 ADD $s0,$s0,$s0
+34 add_to_sum: ADD $s1, $s1, $s2 #ultimul
+35 ADD $s0,$s0,$s0 ---
+36 ADD $s0,$s0,$s0 ---
+37 ADD $s0,$s0,$s0 ---
+38 SUB $s2, $s1, $s2 #penultimul
+39 ADD $s0,$s0,$s0 ---
+40 ADD $s0,$s0,$s0 ---
+41 ADD $s0,$s0,$s0 ---
+42 ADD $s5, $s5, $s2 #suma
+43 J 6
+44 ADD $s0,$s0,$s0 ---
+45 verif_prim: ADDI $s1, $s0, 1 #counter
+46 ADDI $s2, $s0, 0 #j
+47 ADDI $s4, $s0, 0 #rez
+48 ADDI $s7, $s0, 1 #verif
+49 BEQ $s5, $s1, 80
+50 ADD $s0,$s0,$s0 ---
+51 ADD $s0,$s0,$s0 ---
+52 ADD $s0,$s0,$s0 ---
+53 loop2 :ADDI $s1, $s1, 1
+54 ADD $s0,$s0,$s0 ---
+55 ADD $s0,$s0,$s0 ---
+56 BEQ $s1, $s5, end # for i,n
+57 ADD $s0,$s0,$s0 ---
+58 ADD $s0,$s0,$s0 ---
+59 ADD $s0,$s0,$s0 ---
+60 ADD $s2, $s0, $s1 # for j=i,n,j=j+i
+61 ADD $s0,$s0,$s0 ---
+62 ADD $s0,$s0,$s0 ---
+63 ADD $s0,$s0,$s0 ---
+64 loop3: BEQ $s2, $s5, 80
+65 ADD $s0,$s0,$s0 ---
+66 ADD $s0,$s0,$s0 ---
+67 ADD $s0,$s0,$s0 ---
+68 ADD $s2, $s2, $s1 # j = j + i
+69 ADD $s0,$s0,$s0 ---
+70 ADD $s0,$s0,$s0 ---
+71 ADDI $s6, $s0, 0 #verificare interval
+72 ADD $s0,$s0,$s0 ---
+73 ADD $s0,$s0,$s0 ---
+74 SLT $s6, $s5, $s2
+75 BEQ $s6, $s0, 78
+76 ADD $s0,$s0,$s0 ---
+77 ADD $s0,$s0,$s0 ---
+78 ADD $s0,$s0,$s0 ---
+79 J 50
+80 ADD $s0,$s0,$s0 ---
+81 aici: J 61
+82 ADD $s0,$s0,$s0 ---
+83 nu_e_prim: ADDI $s4, $s0, 0 # NOT_PRIME
+84 J 86
+85 ADD $s0,$s0,$s0 ---
+86 end: ADDI $s4, $s0, 1 # IS_PRIME
+87 ADD $s0,$s0,$s0 ---
+88 ADD $s0,$s0,$s0 ---
+89 FINAL: sw $s5,10($s0)
+90 sw $s4,11($s0)
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+			B"001_000_001_0000001", --0 addi $s1,$s0,1 2081
+                        B"001_000_010_0000000", --1 addi $s2,$s0,0 2100
+                        B"001_000_011_0000001", --2 addi $s3,$s0,a=1 2181
+                        B"001_000_100_0000100", --3 addi $s4,$s0,b=4 2204 
+                        B"001_000_101_0000000", --4 addi $s5,$s0,0 2280
+                        B"001_000_111_0000001", --5 addi $s7,$s0,1 2381
+                        B"001_000_110_0000000", --6 addi $s6,$s0,0 2300
+                        B"000_100_001_110_0_111", --7 slt $s6,$s4,$s1 10E7
+                        B"100_110_111_0001010", --8 beq $s6,$s7,verif_prim=19 9b93
+                        B"001_000_110_0000000", --9 addi $s6,$s0,0 2300
+                        B"000_011_001_110_0_111", --10 slt $s6,$s3,$s1 0CE7
+                        B"100_110_111_0000011", --11 beq $s6,$s7,add_to_sum=15 (+3) 9B8F
+                        B"000_001_010_001_0_000", --12 add $s1,$s1,$s2 0510
+                        B"000_001_010_010_0_001", --13 sub $s2,$s1,$s2 0521
+                        B"111_0000000000110", -- 14 j loop=6 E006
+                        B"000_001_010_001_0_000", --15 add $s1,$s1,$s2 0510 
+                        B"000_001_010_010_0_001", --16 sub $s2,$s1,$s2 0521
+                        B"000_101_010_101_0_000", --17 add $s5,$s5,$s2 14D0
+                        B"111_0000000000110", --18 j loop=6 E006
+                        B"001_000_001_0000001", --19 addi $s1,$s0,1 2081
+                        B"001_000_010_0000000", --20 addi $s2,$s0,0 2100
+                        B"001_000_100_0000000", --21 addi $s4,$s0,0 2200
+                        B"001_000_111_0000001", --22 addi $s7,$s0,1 2381
+                        B"100_101_001_0001010", --23 beq $s5,$s1,nu_e_prim=34 94A1
+                        B"001_001_001_0000001", --24 addi $s1,$s1,1 2481
+                        B"100_001_101_0001010", --25 beq $s1,$s5,end=36 86A3
+                        B"000_000_001_010_0_000", --26 add$s2,$s0,$s1 00A0
+                        B"100_010_101_0000110", --27 beq $s2,$s5,nu_e_prim==34 8AA1
+                        B"000_010_001_010_0_000", --28 add $s2,$s2,$s1 08A0
+                        B"001_000_110_0000000", --29 addi $s6,$s0,0 2300
+                        B"000_101_010_110_0_111", --30 slt $s6,$s5,$s2 1567
+                        B"100_110_000_0000001", --31 beq $s6,$s7,aici=33 9801
+                        B"111_0000000011000", --32 j loop2=24 E018
+                        B"111_0000000011011", --33 j loop3=27 E01B
+                        B"001_000_100_0000000", --34 addi $s4,$s0,0 2200
+                        B"111_0000000100101", --35 j FINAL=37 E024
+                        B"001_000_100_0000001", --36 addi$s4,$s0,1 2201
+                        B"011_000_101_0001011", --37 sw $5,11($0) 
+                        B"011_000_100_0001010", --38 sw $4,10($0) 
+                        others =>"0000000000000000");
